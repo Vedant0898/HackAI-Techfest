@@ -22,7 +22,7 @@ print(exchange_agent.address)
 
 
 async def get_exchange_rates(base_cur: str, symbols: List[str]):
-    url = f'{BASE_URL}?apikey={ACCESS_TOKEN}&currencies={"%2D".join(symbols)}&base_currency={base_cur}'
+    url = f'{BASE_URL}?apikey={ACCESS_TOKEN}&currencies={"%2C".join(symbols)}&base_currency={base_cur}'
 
     res = requests.get(url)
     # print(res)
@@ -38,10 +38,12 @@ async def get_exchange_rates(base_cur: str, symbols: List[str]):
         return False, res.json()["errors"]
 
 
-exchange_agent_protocol = Protocol("Request")
+exchange_agent_protocol = Protocol("Convert")
 
 
-@exchange_agent_protocol.on_message(model=ConvertRequest, replies={ConvertResponse})
+@exchange_agent_protocol.on_message(
+    model=ConvertRequest, replies={ConvertResponse, Error}
+)
 async def handle_request(ctx: Context, sender: str, msg: ConvertRequest):
     ctx.logger.info(f"Received request from {sender}: {msg}")
     success, data = await get_exchange_rates(msg.base_currency, msg.target_currencies)
@@ -56,6 +58,8 @@ async def handle_request(ctx: Context, sender: str, msg: ConvertRequest):
             Error(error=data),
         )
 
+
+exchange_agent.include(exchange_agent_protocol)
 
 # r = get_exchange_rates("INR", ["USD", "EUR", "CAD"])
 # print(r)
