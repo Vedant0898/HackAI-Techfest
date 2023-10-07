@@ -1,5 +1,5 @@
 from uagents import Model
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 class ConvertRequest(Model):
@@ -13,9 +13,3 @@ class ConvertResponse(Model):
 
 class Error(Model):
     error: str
-
-
-class UserPreference(Model):
-    base: str
-    thresholds: Dict[str, tuple[float, float]]
-    # Dict[Currency, Tuple(lower, upper)]

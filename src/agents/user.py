@@ -1,9 +1,8 @@
 from uagents import Agent, Context, Protocol
-
 from uagents.setup import fund_agent_if_low
+import json
 
 from messages.basic import ConvertRequest, ConvertResponse, Error
-from typing import List
 
 
 user_agent = Agent(
@@ -19,11 +18,17 @@ EXCHANGE_AGENT_ADDRESS = (
     "agent1qt0ad7cync8z7fz35yrmcr0558734fa63jws9xuymmkrkhea67lqykkrfst"
 )
 
+
 user_agent_protocol = Protocol("Convert")
 
 
 @user_agent.on_event("startup")
 async def initialize_storage(ctx: Context):
+    # try to get user's preferences from data.json
+    status = await update_internal_state(ctx, force=True)
+    if status:
+        return
+    # else set default values
     ctx.storage.set("base", "INR")
     default_targets = {
         "USD": (1 / 85, 1 / 80),
@@ -33,9 +38,32 @@ async def initialize_storage(ctx: Context):
     ctx.storage.set("target", default_targets)
 
 
-@user_agent_protocol.on_interval(20, messages=ConvertRequest)
+async def update_internal_state(ctx: Context, force=False):
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        ctx.logger.error("data.json not found. Skipping update.")
+        return False
+
+    # check if data has been updated
+    if data["hasChanged"] or force:
+        ctx.logger.info("Updating internal state")
+        ctx.storage.set("base", data["base"])
+        ctx.storage.set("target", data["target"])
+        data["hasChanged"] = False
+        with open("data.json", "w") as file:
+            json.dump(data, file)
+        return True
+    return False
+
+
+@user_agent_protocol.on_interval(600, messages=ConvertRequest)
 async def get_currency_conversion_rates(ctx: Context):
-    ctx.logger.info("Sending request to exchange agent")
+    # update internal state
+    await update_internal_state(ctx)
+
+    ctx.logger.info(f"Request sent to Exchange agent({EXCHANGE_AGENT_ADDRESS[:15]}...)")
     await ctx.send(
         EXCHANGE_AGENT_ADDRESS,
         ConvertRequest(
@@ -47,7 +75,7 @@ async def get_currency_conversion_rates(ctx: Context):
 
 @user_agent_protocol.on_message(model=ConvertResponse)
 async def handle_response(ctx: Context, sender: str, msg: ConvertResponse):
-    ctx.logger.info(f"Received response from Exchange({sender[:10]}): {msg}")
+    ctx.logger.info(f"Received response from Exchange({sender[:15]}...)")
     thresholds = ctx.storage.get("target")
     for currency, rate in msg.rates.items():
         if rate <= thresholds[currency][0]:
@@ -64,7 +92,7 @@ async def handle_response(ctx: Context, sender: str, msg: ConvertResponse):
 
 @user_agent_protocol.on_message(model=Error)
 async def handle_error(ctx: Context, sender: str, msg: Error):
-    ctx.logger.info(f"Received error from Exchange({sender[:10]}): {msg}")
+    ctx.logger.error(f"Received Error from Exchange({sender[:15]}...): {msg.error}")
 
 
 user_agent.include(user_agent_protocol)

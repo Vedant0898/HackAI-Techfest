@@ -1,14 +1,18 @@
 from uagents import Agent, Context, Protocol
 from uagents.setup import fund_agent_if_low
 from typing import List
+import requests
+import os
+import dotenv
+
 from messages.basic import ConvertRequest, ConvertResponse, Error
 
-import requests
+dotenv.load_dotenv()
 
-ACCESS_TOKEN = "cur_live_aDyyqOV1xkgTPvUSdp3743MvF7d4gPqPe6qw6wTg"
 BASE_URL = "https://api.currencyapi.com/v3/latest"
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 
-# "https://api.currencyapi.com/v3/latest?apikey=cur_live_aDyyqOV1xkgTPvUSdp3743MvF7d4gPqPe6qw6wTg&currencies=EUR%2CUSD%2CCAD&base_currency=INR"
+assert ACCESS_TOKEN is not None, "ACCESS_TOKEN not found in environment variables"
 
 exchange_agent = Agent(
     name="exchange",
@@ -18,7 +22,6 @@ exchange_agent = Agent(
 )
 
 fund_agent_if_low(exchange_agent.wallet.address())
-print(exchange_agent.address)
 
 
 async def get_exchange_rates(base_cur: str, symbols: List[str]):
@@ -35,7 +38,7 @@ async def get_exchange_rates(base_cur: str, symbols: List[str]):
         return True, d
     else:
         # print(res.json())
-        return False, res.json()["errors"]
+        return False, res.json()["message"]
 
 
 exchange_agent_protocol = Protocol("Convert")
@@ -53,6 +56,7 @@ async def handle_request(ctx: Context, sender: str, msg: ConvertRequest):
             ConvertResponse(rates=data),
         )
     else:
+        ctx.logger.error(f"Error: {data}")
         await ctx.send(
             sender,
             Error(error=data),
@@ -60,6 +64,3 @@ async def handle_request(ctx: Context, sender: str, msg: ConvertRequest):
 
 
 exchange_agent.include(exchange_agent_protocol)
-
-# r = get_exchange_rates("INR", ["USD", "EUR", "CAD"])
-# print(r)
