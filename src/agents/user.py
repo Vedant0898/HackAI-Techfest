@@ -2,7 +2,7 @@ from uagents import Agent, Context, Protocol
 from uagents.setup import fund_agent_if_low
 import json
 
-from messages.basic import ConvertRequest, ConvertResponse, Error
+from messages.basic import ConvertRequest, ConvertResponse, Error, Notification
 
 
 user_agent = Agent(
@@ -18,14 +18,18 @@ EXCHANGE_AGENT_ADDRESS = (
     "agent1qt0ad7cync8z7fz35yrmcr0558734fa63jws9xuymmkrkhea67lqykkrfst"
 )
 
+NOTIFY_AGENT_ADDRESS = (
+    "agent1q2x94ysu3vxzm900g9d7j9j47egagfvd950j3rn09pljqls7ll7z7kyzhj5"
+)
 
 user_agent_protocol = Protocol("Convert")
+user_agent_protocol2 = Protocol("Notify")
 
 
 @user_agent.on_event("startup")
 async def initialize_storage(ctx: Context):
     # try to get user's preferences from data.json
-    status = await update_internal_state(ctx, force=True)
+    status = await update_internal_state(ctx, force=False)
     if status:
         return
     # else set default values
@@ -77,17 +81,28 @@ async def get_currency_conversion_rates(ctx: Context):
 async def handle_response(ctx: Context, sender: str, msg: ConvertResponse):
     ctx.logger.info(f"Received response from Exchange({sender[:15]}...)")
     thresholds = ctx.storage.get("target")
+    notification = []
     for currency, rate in msg.rates.items():
         if rate <= thresholds[currency][0]:
             ctx.logger.critical(
                 f"Rate for {currency} is {rate}. Sending alert to user."
             )
-            # send notification to user
+            notification.append((currency, rate, thresholds[currency][0]))
         elif rate >= thresholds[currency][1]:
             ctx.logger.critical(
                 f"Rate for {currency} is {rate}. Sending alert to user."
             )
-            # send notification to user
+            notification.append((currency, rate, thresholds[currency][1]))
+    if notification:
+        await ctx.send(
+            NOTIFY_AGENT_ADDRESS,
+            Notification(
+                name="Vedant",
+                email="vedant.tamhane03@gmail.com",
+                base_cur=ctx.storage.get("base"),
+                notif=notification,
+            ),
+        )
 
 
 @user_agent_protocol.on_message(model=Error)
@@ -96,3 +111,4 @@ async def handle_error(ctx: Context, sender: str, msg: Error):
 
 
 user_agent.include(user_agent_protocol)
+user_agent.include(user_agent_protocol2)

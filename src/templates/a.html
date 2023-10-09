@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Exchange Monitor & Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .alert {
+            background-color: #FFC107;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Currency Exchange Monitor & Alert</h1>
+        </div>
+        <div class="content">
+            <p>Hello {{name}},</p>
+            {% if ismultiple %}
+            <p>Your Currency Exchange Monitor & Alert app has detected multiple currency exchange rate alerts:</p>
+            {% else %}
+            <p>Your Currency Exchange Monitor & Alert app has detected a currency exchange rate alert:</p>
+            {% endif %}
+
+            {% for alert in alerts %}
+            <div class="alert">
+                <p><strong>Alert {{loop.index}} Details:</strong></p>
+                <p>Currency Pair: {{base_cur}} to {{alert.target_cur}}</p>
+                <p>{{alert.type}} Threshold: 1 {{base_cur}} = {{alert.threshold}} {{alert.target_cur}}</p>
+                <p>Current Rate: 1 {{base_cur}} = {{alert.current_rate}} {{alert.target_cur}}</p>
+            </div>
+            {% endfor %}
+
+            <p>Please log in to your Currency Exchange Monitor & Alert app to take necessary actions.</p>
+            <p>Thank you for using our service!</p>
+        </div>
+    </div>
+</body>
+
+</html>
