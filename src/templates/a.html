@@ -52,8 +52,8 @@
             <div class="alert">
                 <p><strong>Alert {{loop.index}} Details:</strong></p>
                 <p>Currency Pair: {{base_cur}} to {{alert.target_cur}}</p>
-                <p>{{alert.type}} Threshold: 1 {{base_cur}} = {{alert.threshold}} {{alert.target_cur}}</p>
-                <p>Current Rate: 1 {{base_cur}} = {{alert.current_rate}} {{alert.target_cur}}</p>
+                <p>{{alert.type}} Threshold: 1 {{base_cur}} = {{alert.threshold|round(4)}} {{alert.target_cur}}</p>
+                <p>Current Rate: 1 {{base_cur}} = {{alert.current_rate|round(4)}} {{alert.target_cur}}</p>
             </div>
             {% endfor %}
 

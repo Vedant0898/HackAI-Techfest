@@ -29,17 +29,19 @@ user_agent_protocol2 = Protocol("Notify")
 @user_agent.on_event("startup")
 async def initialize_storage(ctx: Context):
     # try to get user's preferences from data.json
-    status = await update_internal_state(ctx, force=False)
+    status = await update_internal_state(ctx, force=True)
     if status:
         return
     # else set default values
     ctx.storage.set("base", "INR")
     default_targets = {
-        "USD": (1 / 85, 1 / 80),
+        "USD": (1 / 85, 1 / 84),
         "EUR": (1 / 90, 1 / 85),
         "CAD": (1 / 58, 1 / 55),
     }
     ctx.storage.set("target", default_targets)
+    ctx.storage.set("name", "Username")
+    ctx.storage.set("email", "default.email@gmail.com")
 
 
 async def update_internal_state(ctx: Context, force=False):
@@ -55,6 +57,8 @@ async def update_internal_state(ctx: Context, force=False):
         ctx.logger.info("Updating internal state")
         ctx.storage.set("base", data["base"])
         ctx.storage.set("target", data["target"])
+        ctx.storage.set("name", data["name"])
+        ctx.storage.set("email", data["email"])
         data["hasChanged"] = False
         with open("data.json", "w") as file:
             json.dump(data, file)
@@ -97,8 +101,8 @@ async def handle_response(ctx: Context, sender: str, msg: ConvertResponse):
         await ctx.send(
             NOTIFY_AGENT_ADDRESS,
             Notification(
-                name="Vedant",
-                email="vedant.tamhane03@gmail.com",
+                name=ctx.storage.get("name"),
+                email=ctx.storage.get("email"),
                 base_cur=ctx.storage.get("base"),
                 notif=notification,
             ),
