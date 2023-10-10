@@ -2,7 +2,6 @@ import os
 import json
 import pandas as pd
 import streamlit as st
-from streamlit.components.v1 import components
 
 from utils.api_utils import get_exchange_rates
 
@@ -38,7 +37,6 @@ if "data.json" in os.listdir():
                 dct["Current Value"] = "%.5f" % (list(y.values())[0])
                 lst.append(dct)
 
-            print(lst)
             df = pd.DataFrame(lst)
             st.dataframe(df, width=501, hide_index=True)
 else:

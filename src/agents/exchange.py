@@ -1,6 +1,4 @@
 import os
-import requests
-from typing import List
 
 import dotenv
 from uagents import Agent, Context, Protocol
@@ -35,7 +33,6 @@ exchange_agent_protocol = Protocol("Convert")
     model=ConvertRequest, replies={ConvertResponse, Error}
 )
 async def handle_request(ctx: Context, sender: str, msg: ConvertRequest):
-    ctx.logger.info(f"Received request from user({sender[:20]}):\n{msg}")
     success, data = get_exchange_rates(msg.base_currency, msg.target_currencies)
     if success:
         await ctx.send(

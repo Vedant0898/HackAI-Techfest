@@ -27,7 +27,6 @@ if "data.json" in os.listdir():
         openfile.close()
         with open("data.json", "r") as openfile:
             json_object = json.load(openfile)
-        print(json_object)
         name = json_object["name"]
         email = json_object["email"]
         base_currency = st.selectbox(

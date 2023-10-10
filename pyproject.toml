@@ -1,8 +1,13 @@
 [tool.poetry]
 name = "pip-ai"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "pip.ai is a Currency Exchange Monitor & Alert Agent. It is a Python-based tool that allows users to track and receive alerts on currency exchange rate fluctuations. This project uses the uAgent library to create a user-friendly interface and to interact with a currency exchange API to provide real-time exchange rate data."
+authors = [
+    "Vedant Tamhane <vedant.tamhane03@gmail.com>", 
+    "Gagankumar C Kummur <gckummur@gmail.com>", 
+    "Eva Ghanshani <evaghanshani@gmail.com>",
+    "Sukhpreet Singh <sssukhpreet2003@gmail.com>"
+]
 license = "MIT"
 readme = "README.md"
 

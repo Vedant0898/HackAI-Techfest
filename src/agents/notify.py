@@ -50,7 +50,6 @@ notify_protocol = Protocol("Notify")
 # Function to handle incoming notifications requests
 @notify_protocol.on_message(model=Notification)
 async def send_notification(ctx: Context, sender: str, msg: Notification):
-    ctx.logger.info(f"Received notification from user({sender[:20]}):\n{msg}")
     if msg.email == "default.email@gmail.com":
         ctx.logger.error(
             "No email provided. See README for instructions to setup email. Skipping notification."

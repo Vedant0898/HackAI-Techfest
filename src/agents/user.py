@@ -30,11 +30,11 @@ NOTIFY_AGENT_ADDRESS = os.getenv("NOTIFY_AGENT_ADDRESS")
 
 assert (
     EXCHANGE_AGENT_ADDRESS is not None
-), "Need EXCHANGE_AGENT_ADDRESS, plese check README file"
+), "Need EXCHANGE_AGENT_ADDRESS, please check README file"
 
 assert (
     NOTIFY_AGENT_ADDRESS is not None
-), "Need NOTIFY_AGENT_ADDRESS, plese check README file"
+), "Need NOTIFY_AGENT_ADDRESS, please check README file"
 
 
 # Create a protocol for conversion requests and notifications
@@ -55,7 +55,6 @@ async def update_user_preference(ctx: Context, force=False):
 
     # check if data has been updated
     if data["hasChanged"] or force:
-        ctx.logger.info("Updating internal state")
         ctx.storage.set("base", data["base_currency"])
         tmp = data["target_currency"]
         d = {}
@@ -97,7 +96,6 @@ async def get_currency_conversion_rates(ctx: Context):
     # get updated user preferences
     await update_user_preference(ctx)
 
-    ctx.logger.info(f"Request sent to Exchange agent({EXCHANGE_AGENT_ADDRESS[:15]}...)")
     await ctx.send(
         EXCHANGE_AGENT_ADDRESS,
         ConvertRequest(
@@ -109,8 +107,7 @@ async def get_currency_conversion_rates(ctx: Context):
 
 # Function to handle conversion response from exchange agent
 @user_agent_convert_protocol.on_message(model=ConvertResponse)
-async def handle_response(ctx: Context, sender: str, msg: ConvertResponse):
-    ctx.logger.info(f"Received response from Exchange({sender[:15]}...)")
+async def handle_response(ctx: Context, msg: ConvertResponse):
     thresholds = ctx.storage.get("target")
     notification = []
     for currency, rate in msg.rates.items():
