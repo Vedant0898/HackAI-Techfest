@@ -11,8 +11,6 @@ ACCESS_TOKEN = "cur_live_aDyyqOV1xkgTPvUSdp3743MvF7d4gPqPe6qw6wTg"
 BASE_URL = "https://api.currencyapi.com/v3/latest"
 
 
-
-
 def get_exchange_rates(base_cur: str, symbols: List[str]):
     url = f'{BASE_URL}?apikey={ACCESS_TOKEN}&currencies={"%2C".join(symbols)}&base_currency={base_cur}'
 
@@ -30,13 +28,13 @@ def get_exchange_rates(base_cur: str, symbols: List[str]):
         return False, res.json()["errors"]
 
 
-if "userdata.json" in os.listdir():
-    with open("userdata.json", "r") as openfile:
+if "data.json" in os.listdir():
+    with open("data.json", "r") as openfile:
         json_object = openfile.readlines()
     if len(json_object) == 0:
         st.write("Please create new registry")
     else:
-        with open("userdata.json", "r") as openfile:
+        with open("data.json", "r") as openfile:
             json_object = json.load(openfile)
             name = json_object["name"]
             email = json_object["email"]

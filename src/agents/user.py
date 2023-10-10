@@ -56,8 +56,13 @@ async def update_user_preference(ctx: Context, force=False):
     # check if data has been updated
     if data["hasChanged"] or force:
         ctx.logger.info("Updating internal state")
-        ctx.storage.set("base", data["base"])
-        ctx.storage.set("target", data["target"])
+        ctx.storage.set("base", data["base_currency"])
+        tmp = data["target_currency"]
+        d = {}
+        for i in tmp:
+            d.update(i)
+        # print(d)
+        ctx.storage.set("target", d)
         ctx.storage.set("name", data["name"])
         ctx.storage.set("email", data["email"])
         data["hasChanged"] = False
