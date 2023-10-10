@@ -1,7 +1,9 @@
 import json
 import streamlit as st
 import os
-
+import  pickle
+file = open('currencies.pkl','rb')
+currencies = pickle.load(file)
 
 def show_data(username, json_data):
     # json_data = json.loads(json_data)
@@ -26,9 +28,9 @@ if ('userdata.json' in os.listdir()):
         print(json_object)
         name = json_object['name']
         email = json_object['email']
-        base_currency = st.selectbox('base currency',['INR','USD','CAD'],index=['INR','USD','CAD'].index(json_object['base_currency']))
+        base_currency = st.selectbox('base currency',currencies,index=['INR','USD','CAD'].index(json_object['base_currency']))
         # key = [curr.keys() for curr in json_object['target_currency']]
-        traget_currency = st.multiselect('target currency',['INR','CAD','USD','YEN'],default=[list(curr.keys())[0] for curr in json_object['target_currency']])
+        traget_currency = st.multiselect('target currency',currencies,default=[list(curr.keys())[0] for curr in json_object['target_currency']])
         lst = []
 
         for i in range(len(traget_currency)):

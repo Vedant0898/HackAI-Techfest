@@ -1,7 +1,11 @@
 import streamlit as st
 import json  
 from streamlit import session_state as ss
+import pickle
 import os
+
+file = open('currencies.pkl','rb')
+currencies = pickle.load(file)
 def show_data(username, json_data):
    #  json_data = json.load(json_data)
     for datas in [json_data]:
@@ -25,8 +29,8 @@ def create_form():
     #        json_object = json.load(openfile)
     username = st.text_input("Name", key='name')
     email = st.text_input("Email",key='email')
-    base_currency = st.selectbox('base currency',['INR','USD','CAD'])
-    traget_currency = st.multiselect('target currency',['INR','CAD','USD','YEN'])
+    base_currency = st.selectbox('base currency',currencies)
+    traget_currency = st.multiselect('target currency',currencies)
     lst = []
 
     for i in range(len(traget_currency)):
