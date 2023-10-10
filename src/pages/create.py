@@ -38,8 +38,7 @@ def check_value(data, val):
     return any(player["email"] == val for player in len(data))
 
 
-st.title("This is PageOne Geeks.")
-st.sidebar.success("You are currently viewing Page One Geek")
+# st.sidebar.success("You are currently viewing Page One Geek")
 
 
 def create_form():
@@ -93,9 +92,10 @@ if "data.json" in os.listdir():
         json_object = openfile.readlines()
     if len(json_object) == 0:
         # newScenario = st.button("Create New Scenario", key="a")
-
+        st.title("Please fill the preference and threshold value.")
         create_form()
     else:
+        st.title("Your set data.")
         with open("data.json", "r") as openfile:
             json_object = json.load(openfile)
         st.write(show_data(json_object["name"], json_object))

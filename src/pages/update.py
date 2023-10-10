@@ -15,8 +15,8 @@ def show_data(username, json_data):
             return datas
 
 
-st.title("This is PageTwo Geeks.")
-st.sidebar.success("You are currently viewing Page Two Geek")
+# st.title("This is PageTwo Geeks.")
+# st.sidebar.success("You are currently viewing Page Two Geek")
 
 if "data.json" in os.listdir():
     with open("data.json", "r") as openfile:
@@ -24,6 +24,7 @@ if "data.json" in os.listdir():
     if len(json_object) == 0:
         st.write("Please create new registry")
     else:
+        st.title("Update the data")
         openfile.close()
         with open("data.json", "r") as openfile:
             json_object = json.load(openfile)
