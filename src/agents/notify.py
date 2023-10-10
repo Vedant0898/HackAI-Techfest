@@ -1,14 +1,11 @@
 import os
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import smtplib
 
 import dotenv
 from uagents import Agent, Context, Protocol
 from uagents.setup import fund_agent_if_low
 
 from messages.basic import Notification
-from utils.email_utils import send_template_email
+from utils.email_utils import send_email
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -27,37 +24,8 @@ notify_agent = Agent(
 fund_agent_if_low(notify_agent.wallet.address())
 
 
-# Function to handle sending email
-async def send_email(ctx: Context, name: str, to: str, subject: str, msg: Notification):
-    fromaddr = os.getenv("EMAIL")
-    password = os.getenv("APP_PASSWORD")
-
-    if not fromaddr or not password:
-        return False, "Email credentials not found"
-
-    message = MIMEMultipart()
-    message["To"] = f"{name} <{to}>"
-    message["From"] = fromaddr
-    message["Subject"] = subject
-
-    message.attach(MIMEText(generate_body(msg), "html"))
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo("Gmail")
-        server.starttls()
-        server.login(fromaddr, password)
-        server.sendmail(fromaddr, to, message.as_string())
-
-        server.quit()
-    except Exception as e:
-        return False, str(e)
-
-    return True, "Email sent"
-
-
 # Function to generate the mail body from the template
-def generate_body(msg: Notification):
+def generate_context(msg: Notification):
     alerts = []
     for n in msg.notif:
         tmp = {}
@@ -72,8 +40,7 @@ def generate_body(msg: Notification):
         "alerts": alerts,
         "base_cur": msg.base_cur,
     }
-    body = send_template_email(**context)
-    return body
+    return context
 
 
 # Create a protocol for notifications
@@ -84,9 +51,8 @@ notify_protocol = Protocol("Notify")
 @notify_protocol.on_message(model=Notification)
 async def send_notification(ctx: Context, sender: str, msg: Notification):
     ctx.logger.info(f"Received notification from user({sender[:20]}):\n{msg}")
-    success, data = await send_email(
-        ctx, msg.name, msg.email, "Currency Conversion", msg
-    )
+    context = generate_context(msg)
+    success, data = await send_email(msg.name, msg.email, context)
     if success:
         ctx.logger.info("Email sent successfully")
     else:
