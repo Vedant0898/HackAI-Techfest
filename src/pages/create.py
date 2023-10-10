@@ -3,10 +3,23 @@ import json
 from streamlit import session_state as ss
 import pickle
 import os
-
+import re
 file = open("currencies.pkl", "rb")
 currencies = pickle.load(file)
 
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+ 
+# Define a function for
+# for validating an Email
+def check(email):
+ 
+    # pass the regular expression
+    # and the string into the fullmatch() method
+    if(re.fullmatch(regex, email)):
+        return True
+ 
+    else:
+        return False
 
 def show_data(username, json_data):
     #  json_data = json.load(json_data)
@@ -57,19 +70,22 @@ def create_form():
         st.write(lst)
         submit = st.form_submit_button("Submit")
     if submit:
-        dct = {
-            "name": username,
-            "email": email,
-            "hasChanged": True,
-            "base_currency": base_currency,
-            "target_currency": lst,
-        }
-        json_object = json.dumps(dct, indent=4)
-        with open("data.json", "w") as outfile:
-            outfile.write(json_object)
-        with open("data.json", "r") as openfile:
-            json_object = json.load(openfile)
-        ss["show_form"] = False
+        if check(email):
+            dct = {
+                "name": username,
+                "email": email,
+                "hasChanged": True,
+                "base_currency": base_currency,
+                "target_currency": lst,
+            }
+            json_object = json.dumps(dct, indent=4)
+            with open("data.json", "w") as outfile:
+                outfile.write(json_object)
+            with open("data.json", "r") as openfile:
+                json_object = json.load(openfile)
+            ss["show_form"] = False
+        else:
+            st.error("Please enter the valid email address")
 
 
 if "data.json" in os.listdir():

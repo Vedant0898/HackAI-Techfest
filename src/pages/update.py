@@ -45,7 +45,7 @@ if "data.json" in os.listdir():
 
         for i in range(len(traget_currency)):
             number_min = st.number_input(
-                str(traget_currency[i]) + " max",
+                str(traget_currency[i]) + " mix",
                 key=str(traget_currency[i]) + "_min",
                 value=0.0000001,
                 format="%.5f",
