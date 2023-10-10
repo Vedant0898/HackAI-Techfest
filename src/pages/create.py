@@ -6,6 +6,8 @@ import re
 import streamlit as st
 from streamlit import session_state as ss
 
+st.set_page_config(page_title="pip.ai")
+
 file = open("currencies.pkl", "rb")
 CURRENCIES = pickle.load(file)
 

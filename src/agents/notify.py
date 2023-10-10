@@ -51,6 +51,11 @@ notify_protocol = Protocol("Notify")
 @notify_protocol.on_message(model=Notification)
 async def send_notification(ctx: Context, sender: str, msg: Notification):
     ctx.logger.info(f"Received notification from user({sender[:20]}):\n{msg}")
+    if msg.email == "default.email@gmail.com":
+        ctx.logger.error(
+            "No email provided. See README for instructions to setup email. Skipping notification."
+        )
+        return
     context = generate_context(msg)
     success, data = await send_email(msg.name, msg.email, context)
     if success:
