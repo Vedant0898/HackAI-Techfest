@@ -1,28 +1,33 @@
-from uagents import Agent, Context, Protocol
-from uagents.setup import fund_agent_if_low
-import smtplib
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
+import smtplib
+
 import dotenv
+from uagents import Agent, Context, Protocol
+from uagents.setup import fund_agent_if_low
 
 from messages.basic import Notification
 from utils.email_utils import send_template_email
 
+# Load environment variables
 dotenv.load_dotenv()
+
+# Create notify agent
+NOTIFY_AGENT_SEED = os.getenv("NOTIFY_AGENT_SEED", "notify agent secret phrase")
 
 notify_agent = Agent(
     name="notify",
-    seed="notify agent",
-    port=8003,
-    endpoint=["http://127.0.0.1:8003/submit"],
+    seed=NOTIFY_AGENT_SEED,
+    port=8002,
+    endpoint=["http://127.0.0.1:8002/submit"],
 )
 
+# Ensure the agent has enough funds
 fund_agent_if_low(notify_agent.wallet.address())
 
-notify_protocol = Protocol("Notify")
 
-
+# Function to handle sending email
 async def send_email(ctx: Context, name: str, to: str, subject: str, msg: Notification):
     fromaddr = os.getenv("EMAIL")
     password = os.getenv("APP_PASSWORD")
@@ -51,6 +56,7 @@ async def send_email(ctx: Context, name: str, to: str, subject: str, msg: Notifi
     return True, "Email sent"
 
 
+# Function to generate the mail body from the template
 def generate_body(msg: Notification):
     alerts = []
     for n in msg.notif:
@@ -70,6 +76,11 @@ def generate_body(msg: Notification):
     return body
 
 
+# Create a protocol for notifications
+notify_protocol = Protocol("Notify")
+
+
+# Function to handle incoming notifications requests
 @notify_protocol.on_message(model=Notification)
 async def send_notification(ctx: Context, sender: str, msg: Notification):
     ctx.logger.info(f"Received notification from user({sender[:20]}):\n{msg}")
@@ -82,4 +93,5 @@ async def send_notification(ctx: Context, sender: str, msg: Notification):
         ctx.logger.error(f"Error sending email: {data}")
 
 
+# include protocol with the agent
 notify_agent.include(notify_protocol)
