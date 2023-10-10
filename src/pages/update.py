@@ -1,28 +1,25 @@
-import json
-import streamlit as st
 import os
+import json
 import pickle
 
+import streamlit as st
+
 file = open("currencies.pkl", "rb")
-currencies = pickle.load(file)
+CURRENCIES = pickle.load(file)
 
 
 def show_data(username, json_data):
-    # json_data = json.loads(json_data)
     for datas in [json_data]:
-        #   print("data",datas['name'])
         if datas["name"] == username:
             return datas
 
 
-# st.title("This is PageTwo Geeks.")
-# st.sidebar.success("You are currently viewing Page Two Geek")
-
 if "data.json" in os.listdir():
+    # Check for data.json file and load data if present
     with open("data.json", "r") as openfile:
         json_object = openfile.readlines()
     if len(json_object) == 0:
-        st.write("Please create new registry")
+        st.write("Please create new user preference")
     else:
         st.title("Update the data")
         openfile.close()
@@ -33,31 +30,38 @@ if "data.json" in os.listdir():
         email = json_object["email"]
         base_currency = st.selectbox(
             "base currency",
-            currencies,
-            index=currencies.index(json_object["base_currency"]),
+            CURRENCIES,
+            index=CURRENCIES.index(json_object["base_currency"]),
         )
-        # key = [curr.keys() for curr in json_object['target_currency']]
-        traget_currency = st.multiselect(
+        target_currency = st.multiselect(
             "target currency",
-            currencies,
+            CURRENCIES,
             default=[list(curr.keys())[0] for curr in json_object["target_currency"]],
         )
         lst = []
+        tmp = json_object["target_currency"]
+        d = {}
+        for i in tmp:
+            d.update(i)
 
-        for i in range(len(traget_currency)):
+        for i in range(len(target_currency)):
+            val = [0.0, 0.0]
+            if target_currency[i] in d.keys():
+                val = d[target_currency[i]]
+
             number_min = st.number_input(
-                str(traget_currency[i]) + " mix",
-                key=str(traget_currency[i]) + "_min",
-                value=0.0000001,
+                str(target_currency[i]) + " min",
+                key=str(target_currency[i]) + "_min",
+                value=val[0],
                 format="%.5f",
             )
             number_max = st.number_input(
-                str(traget_currency[i]) + " max",
-                key=str(traget_currency[i]) + "_max",
-                value=0.0000001,
+                str(target_currency[i]) + " max",
+                key=str(target_currency[i]) + "_max",
+                value=val[1],
                 format="%.5f",
             )
-            lst.append({traget_currency[i]: [number_min, number_max]})
+            lst.append({target_currency[i]: [number_min, number_max]})
 
         with st.form("tar"):
             st.write(lst)
@@ -72,11 +76,11 @@ if "data.json" in os.listdir():
                 "target_currency": lst,
             }
             json_object = json.dumps(dct, indent=4)
-            # print(type(json_object))
             with open("data.json", "w") as outfile:
                 outfile.write(json_object)
             with open("data.json", "r") as openfile:
                 json_object = json.load(openfile)
             show_data(name, json_object)
 else:
-    st.write("Create new registery")
+    # Else ask user to create new preference
+    st.write("Create new user preference")

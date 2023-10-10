@@ -1,30 +1,30 @@
-import streamlit as st
-import json
-from streamlit import session_state as ss
-import pickle
 import os
+import json
+import pickle
 import re
-file = open("currencies.pkl", "rb")
-currencies = pickle.load(file)
 
-regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
- 
-# Define a function for
-# for validating an Email
-def check(email):
- 
+import streamlit as st
+from streamlit import session_state as ss
+
+file = open("currencies.pkl", "rb")
+CURRENCIES = pickle.load(file)
+
+regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+
+
+# Define a function for validating an Email
+def check_email(email):
     # pass the regular expression
     # and the string into the fullmatch() method
-    if(re.fullmatch(regex, email)):
+    if re.fullmatch(regex, email):
         return True
- 
+
     else:
         return False
 
+
 def show_data(username, json_data):
-    #  json_data = json.load(json_data)
     for datas in [json_data]:
-        #   print("data",datas['name'])
         if datas["name"] == username:
             return datas
 
@@ -38,38 +38,34 @@ def check_value(data, val):
     return any(player["email"] == val for player in len(data))
 
 
-# st.sidebar.success("You are currently viewing Page One Geek")
-
-
+# Define a function for creating a form
 def create_form():
-    # with open('data.json', 'r') as openfile:
-    #        json_object = json.load(openfile)
     username = st.text_input("Name", key="name")
     email = st.text_input("Email", key="email")
-    base_currency = st.selectbox("base currency", currencies)
-    traget_currency = st.multiselect("target currency", currencies)
+    base_currency = st.selectbox("base currency", CURRENCIES)
+    target_currency = st.multiselect("target currency", CURRENCIES)
     lst = []
 
-    for i in range(len(traget_currency)):
+    for i in range(len(target_currency)):
         number_min = st.number_input(
-            str(traget_currency[i]) + " min",
-            key=str(traget_currency[i]) + "_min",
+            str(target_currency[i]) + " min",
+            key=str(target_currency[i]) + "_min",
             value=0.0000001,
             format="%.5f",
         )
         number_max = st.number_input(
-            str(traget_currency[i]) + " max",
-            key=str(traget_currency[i]) + "_max",
+            str(target_currency[i]) + " max",
+            key=str(target_currency[i]) + "_max",
             value=0.0000001,
             format="%.5f",
         )
-        lst.append({traget_currency[i]: [number_min, number_max]})
+        lst.append({target_currency[i]: [number_min, number_max]})
 
     with st.form("tar", clear_on_submit=True):
         st.write(lst)
         submit = st.form_submit_button("Submit")
     if submit:
-        if check(email):
+        if check_email(email):
             dct = {
                 "name": username,
                 "email": email,
@@ -88,10 +84,10 @@ def create_form():
 
 
 if "data.json" in os.listdir():
+    # if "data.json" exists then show the data
     with open("data.json", "r") as openfile:
         json_object = openfile.readlines()
     if len(json_object) == 0:
-        # newScenario = st.button("Create New Scenario", key="a")
         st.title("Please fill the preference and threshold value.")
         create_form()
     else:
@@ -102,6 +98,7 @@ if "data.json" in os.listdir():
 
 
 else:
+    # Else ask user to create new preference
     create_file()
 
     name_in_dct = False

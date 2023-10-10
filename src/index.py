@@ -1,39 +1,21 @@
-import json
-import streamlit as st
 import os
-import requests
-from typing import List
+import json
 
-st.set_page_config(page_title="This is a Multipage WebApp")
-st.sidebar.success("Select Any Page from here")
+import streamlit as st
 
-ACCESS_TOKEN = "cur_live_aDyyqOV1xkgTPvUSdp3743MvF7d4gPqPe6qw6wTg"
-BASE_URL = "https://api.currencyapi.com/v3/latest"
+from utils.api_utils import get_exchange_rates
 
-
-def get_exchange_rates(base_cur: str, symbols: List[str]):
-    url = f'{BASE_URL}?apikey={ACCESS_TOKEN}&currencies={"%2C".join(symbols)}&base_currency={base_cur}'
-
-    res = requests.get(url)
-    # print(res)
-    if res.status_code == 200:
-        d = {}
-        r = res.json()
-        for sym in r["data"].keys():
-            d[sym] = r["data"][sym]["value"]
-        # print(d)
-        return True, d
-    else:
-        # print(res.json())
-        return False, res.json()["errors"]
-
+st.set_page_config(page_title="pip.ai")
 
 if "data.json" in os.listdir():
+    # Check for data.json file and load data if present
     with open("data.json", "r") as openfile:
         json_object = openfile.readlines()
     if len(json_object) == 0:
-        st.write("Please create new registry")
+        # If file is empty ask user to create new preference
+        st.write("Please create new user preference")
     else:
+        # Else display user preference and ask user to update if required
         with open("data.json", "r") as openfile:
             json_object = json.load(openfile)
             name = json_object["name"]
@@ -43,11 +25,10 @@ if "data.json" in os.listdir():
             st.title("Welcome {0}".format(name))
             st.write("Your email address is : {0}".format(email))
             st.write("Your base currency is set to {0}".format(base_currency))
-            # r = get_exchange_rates("INR", ["USD", "EUR", "CAD"])
-            # st.write(r)
+
             for i in target_currency:
                 mini = list(i.values())
-                print(mini)
+                # call api to get current exchange rates and display
                 r, y = get_exchange_rates(base_currency, list(i.keys()))
                 st.write(
                     "{0} -> min {1}, max {2}, current value {3}".format(
@@ -59,4 +40,5 @@ if "data.json" in os.listdir():
                 )
 
 else:
-    st.write("Please create new registry")
+    # Else ask user to create new preference
+    st.write("Please create new preference")
