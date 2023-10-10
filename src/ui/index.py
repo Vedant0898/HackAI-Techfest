@@ -48,3 +48,7 @@ if ('userdata.json' in os.listdir()):
                 r,y = get_exchange_rates(base_currency,list(i.keys()))
                 st.write('{0} -> min {1}, max {2}, current value {3}'.format(list(i.keys())[0],list(i.values())[0][0],list(i.values())[0][1], list(y.values())[0]))
         
+else:
+    st.write('Please create new registry')
+        
+        
