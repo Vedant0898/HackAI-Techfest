@@ -8,29 +8,92 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .header {
-            background-color: #007BFF;
+            background-image: url('https://t4.ftcdn.net/jpg/04/20/13/51/360_F_420135133_lQd5GuTMcHs3zas7V891coDA0Lqw5bGh.jpg'); 
             color: #fff;
             text-align: center;
             padding: 20px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
 
         .content {
             padding: 20px;
         }
 
+        
+
+        h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
         .alert {
-            background-color: #FFC107;
-            padding: 10px;
+            background: linear-gradient(to bottom,#fff046,#eedb07);
+            padding: 15px;
             margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            
+        }
+
+        .alert p {
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .alert .alert-details {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 1px solid #FFA000;
+        }
+
+        .alert .alert-details p {
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .alert .alert-details p:first-child {
+            margin-top: 0;
+        }
+
+        .alert .alert-details p:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .thank-you {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer {
+            font-size: 14px;
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -57,8 +120,11 @@
             </div>
             {% endfor %}
 
-            <p>Please log in to your Currency Exchange Monitor & Alert app to take necessary actions.</p>
-            <p>Thank you for using our service!</p>
+            <p class="thank-you">Log in to the app to take necessary actions.</p>
+            <p class="thank-you">Thank you for using our service!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2023 pip.ai</p>
         </div>
     </div>
 </body>
