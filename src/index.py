@@ -2,6 +2,7 @@ import os
 import json
 
 import streamlit as st
+from streamlit.components.v1 import components
 
 from utils.api_utils import get_exchange_rates
 
@@ -23,7 +24,7 @@ if "data.json" in os.listdir():
             base_currency = json_object["base_currency"]
             target_currency = json_object["target_currency"]
             st.title("Welcome {0}".format(name))
-            st.write("Your email address is : {0}".format(email))
+            st.write("{0}".format(email))
             st.write("Your base currency is set to {0}".format(base_currency))
 
             for i in target_currency:
